@@ -1,0 +1,20 @@
+# WAIT, part 2. Dependabot cooldown only delays PR creation;
+# the install-time gate is min-release-age in .npmrc. Configure both, same number.
+# Security updates are not subject to cooldown.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+    versioning-strategy: increase
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

@@ -1,0 +1,117 @@
+# Slides 18-20: the same repo, the same package.json, three different outcomes.
+#   floating  -> what most pipelines do: no lockfile, caret range, scripts on
+#   pinned    -> LOCK: npm ci from the committed lockfile
+#   cooldown  -> WAIT: no lockfile, same caret range, but versions < 1 day old are ignored
+#   hardened  -> PIN + LOCK + WAIT + no install scripts + egress allowlist
+name: Nightly Build
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "30 0 * * 0"   # Sunday 03:30 Sofia time (UTC+3 in summer)
+
+permissions: {}            # nothing by default; each job asks for what it needs
+
+jobs:
+  floating:
+    name: "install - floating (npm install, no lockfile)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@OWNER"
+      - name: Resolve whatever the range allows
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -f package-lock.json
+          npm install
+          npm ls @OWNER/demo-utils
+      - run: npm start
+
+  pinned:
+    name: "install - pinned (npm ci, committed lockfile)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@OWNER"
+      - name: Install exactly what the lockfile says
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npm ls @OWNER/demo-utils
+      - run: npm start
+
+  cooldown:
+    name: "install - cooldown (no lockfile, but min-release-age=1)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@OWNER"
+      - name: Upgrade npm (min-release-age needs npm >= 11.10)
+        run: npm install -g npm@11 && npm --version
+      - name: Same range as "floating", but fresh releases are invisible
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -f package-lock.json
+          npm install --min-release-age=1
+          npm ls @OWNER/demo-utils
+      - run: npm start
+
+  hardened:
+    name: "install - hardened (pin, lock, wait, inspect)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Default-deny egress
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            npm.pkg.github.com:443
+            pkg-npm.githubusercontent.com:443
+            registry.npmjs.org:443
+            nodejs.org:443
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@OWNER"
+      - name: Upgrade npm (min-release-age needs npm >= 11.10)
+        run: npm install -g npm@11 && npm --version
+      - name: INSPECT - lockfile only points where we allow
+        run: npx --yes lockfile-lint --path package-lock.json --allowed-hosts npm npm.pkg.github.com --validate-https
+      - name: LOCK + WAIT + no install scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci --ignore-scripts --min-release-age=1
+          npm ls @OWNER/demo-utils
+      - run: npm start

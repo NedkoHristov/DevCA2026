@@ -1,0 +1,2 @@
+# Python: the same idea. Write ranges here, compile to exact versions + hashes.
+requests>=2.32

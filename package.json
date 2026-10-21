@@ -1,0 +1,14 @@
+{
+  "name": "devca2026-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo app for 'Keep Yourself Positive in the World of Security: A DevOps Perspective' (DEV: Challenge Accepted 2026)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "lint:lockfile": "npx --yes lockfile-lint --path package-lock.json --allowed-hosts npm npm.pkg.github.com --validate-https"
+  },
+  "dependencies": {
+    "@OWNER/demo-utils": "^1.0.0"
+  }
+}

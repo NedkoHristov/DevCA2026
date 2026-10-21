@@ -1,0 +1,9 @@
+{
+  "name": "@OWNER/demo-utils",
+  "version": "1.0.0",
+  "description": "Harmless demo dependency (clean release)",
+  "main": "index.js",
+  "repository": { "type": "git", "url": "https://github.com/OWNER/DevCA2026.git" },
+  "publishConfig": { "registry": "https://npm.pkg.github.com" },
+  "license": "MIT"
+}

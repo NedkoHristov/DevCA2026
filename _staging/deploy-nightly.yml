@@ -1,0 +1,29 @@
+# Finding 3 - "the actor cannot be a person".
+# Move this into .github/workflows/ with the commit message:
+#   temp fix for release, will clean up later
+# Then nobody owns it, nobody reviews it, and it runs every Sunday at 03:30.
+name: Deploy Nightly
+
+on:
+  schedule:
+    - cron: "30 0 * * 0"   # Sunday 03:30 Europe/Sofia (00:30 UTC while on EEST)
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Deploy (simulated)
+        env:
+          # Long-lived token created by someone who left the team.
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          echo "actor:      ${{ github.actor }}"
+          echo "triggered:  ${{ github.event_name }}"
+          echo "credential: DEPLOY_TOKEN (created 2025, owner: disabled account)"
+          echo "Deploying to production... (simulated, nothing happens)"

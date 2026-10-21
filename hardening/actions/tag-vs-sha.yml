@@ -1,0 +1,16 @@
+# Slide 21 - the most valuable screenshot for this room.
+name: tag-vs-sha (example, not wired to triggers)
+on: workflow_dispatch
+permissions: {}
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # BAD: v7 is a git tag. Whoever controls the repo can move it.
+      # - uses: actions/checkout@v7
+
+      # GOOD: a full commit SHA cannot be moved. The comment keeps it readable,
+      # Dependabot (package-ecosystem: github-actions) keeps it current.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

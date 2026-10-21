@@ -1,0 +1,4 @@
+# Workflows, lockfiles and these rules are production code: a second human must approve.
+/.github/workflows/   @OWNER
+/.github/CODEOWNERS   @OWNER
+package-lock.json     @OWNER

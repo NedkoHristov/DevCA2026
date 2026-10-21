@@ -1,0 +1,12 @@
+{
+  "name": "@OWNER/demo-utils",
+  "version": "1.1.0",
+  "description": "Harmless demo dependency (simulated compromised release)",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "repository": { "type": "git", "url": "https://github.com/OWNER/DevCA2026.git" },
+  "publishConfig": { "registry": "https://npm.pkg.github.com" },
+  "license": "MIT"
+}
