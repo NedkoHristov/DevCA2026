@@ -1,8 +1,11 @@
-# Slides 18-20: the same repo, the same package.json, three different outcomes.
+# Slides 10-11: the same repo, the same package.json, four different outcomes.
 #   floating  -> what most pipelines do: no lockfile, caret range, scripts on
 #   pinned    -> LOCK: npm ci from the committed lockfile
 #   cooldown  -> WAIT: no lockfile, same caret range, but versions < 1 day old are ignored
 #   hardened  -> PIN + LOCK + WAIT + no install scripts + egress allowlist
+#
+# Every job ends with "Did anything run during install?".
+# npm hides dependency install-script output, so the file is the evidence.
 name: Nightly Build
 
 on:
@@ -33,6 +36,9 @@ jobs:
           rm -f package-lock.json
           npm install
           npm ls @OWNER/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   pinned:
@@ -54,6 +60,9 @@ jobs:
         run: |
           npm ci
           npm ls @OWNER/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   cooldown:
@@ -78,6 +87,9 @@ jobs:
           rm -f package-lock.json
           npm install --min-release-age=1
           npm ls @OWNER/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   hardened:
@@ -114,4 +126,7 @@ jobs:
         run: |
           npm ci --ignore-scripts --min-release-age=1
           npm ls @OWNER/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start

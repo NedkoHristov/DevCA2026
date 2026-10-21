@@ -1,0 +1,10 @@
+{
+  "name": "@demo/demo-utils",
+  "version": "1.1.0",
+  "description": "Harmless demo dependency (simulated bad release: prints a banner, nothing else)",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "license": "MIT"
+}

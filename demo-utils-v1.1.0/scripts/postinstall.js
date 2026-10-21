@@ -1,12 +1,20 @@
-// SIMULATION ONLY. This script reads nothing, sends nothing, writes nothing.
-// It prints what a real payload would have touched, so the CI log shows the moment.
-const red = (s) => `\x1b[1;31m${s}\x1b[0m`;
-const looked = ['~/.npmrc', '~/.aws/credentials', '~/.ssh/', '.env', 'GITHUB_TOKEN', 'NPM_TOKEN'];
-const bar = '#'.repeat(60);
-console.log(red(bar));
-console.log(red('#  SIMULATED SUPPLY-CHAIN PAYLOAD - demo-utils 1.1.0'));
-console.log(red(bar));
-console.log(red('A real payload would now read:'));
-looked.forEach((p) => console.log(red(`  -> ${p}`)));
-console.log(red('...and POST it to a host nobody allowlisted.'));
-console.log(red('This demo did none of that. The job will still be green.'));
+// SIMULATION. Reads nothing, sends nothing.
+// Writes ONE file into the project that ran `npm install`, as proof that code ran.
+const fs = require('fs');
+const path = require('path');
+
+const bar = '█'.repeat(52);
+const banner = [
+  bar,
+  '  demo-utils 1.1.0 just ran code on this machine',
+  '  It could have read: ~/.npmrc  ~/.aws  ~/.ssh  .env',
+  '  It read nothing. It sent nothing. This time.',
+  bar,
+].join('\n');
+
+const where = process.env.INIT_CWD || process.cwd();
+fs.writeFileSync(
+  path.join(where, 'demo-utils-was-here.txt'),
+  `${banner}\nran at ${new Date().toISOString()}\nas user ${process.env.USER || process.env.USERNAME || 'unknown'}\n`
+);
+console.log(`\x1b[1;31m${banner}\x1b[0m`);
