@@ -2,5 +2,5 @@
 # Make it explicit and stricter. Unit: MINUTES (npm uses days - say it on stage).
 minimumReleaseAge: 4320          # 3 days
 minimumReleaseAgeExclude:
-  - "@OWNER/*"                   # internal packages can update immediately
+  - "@nedkohristov/*"                   # internal packages can update immediately
 blockExoticSubdeps: true         # no git/tarball URLs smuggled in by transitive deps

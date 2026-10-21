@@ -28,14 +28,14 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Resolve whatever the range allows
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rm -f package-lock.json
           npm install
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
       - name: Did anything run during install?
         run: |
           if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
@@ -53,13 +53,13 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Install exactly what the lockfile says
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
       - name: Did anything run during install?
         run: |
           if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
@@ -77,7 +77,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Upgrade npm (min-release-age needs npm >= 11.10)
         run: npm install -g npm@11 && npm --version
       - name: Same range as "floating", but fresh releases are invisible
@@ -86,7 +86,7 @@ jobs:
         run: |
           rm -f package-lock.json
           npm install --min-release-age=1
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
       - name: Did anything run during install?
         run: |
           if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
@@ -115,7 +115,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Upgrade npm (min-release-age needs npm >= 11.10)
         run: npm install -g npm@11 && npm --version
       - name: INSPECT - lockfile only points where we allow
@@ -125,7 +125,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci --ignore-scripts --min-release-age=1
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
       - name: Did anything run during install?
         run: |
           if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
