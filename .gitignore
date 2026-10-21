@@ -1,11 +1,3 @@
 node_modules/
 *.log
 .env
-
-demo/storage/
-demo/htpasswd
-demo/.npmrc-demo
-demo/.npm-cache/
-demo/app/node_modules/
-demo/app/package-lock*.json
-demo/app/demo-utils-was-here.txt

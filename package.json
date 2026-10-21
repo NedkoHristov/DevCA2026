@@ -9,6 +9,6 @@
     "lint:lockfile": "npx --yes lockfile-lint --path package-lock.json --allowed-hosts npm npm.pkg.github.com --validate-https"
   },
   "dependencies": {
-    "@nedkohristov/demo-utils": "^1.0.0"
+    "@OWNER/demo-utils": "^1.0.0"
   }
 }

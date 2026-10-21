@@ -24,7 +24,7 @@ acted at 03:30 was not a person at all.
 | 22/26 Incident log 2 | Workflows dressed as security (GhostAction) | `.github/workflows/security-scan.yml` |
 | 23/27 Finding 2 | The credential outlived its owner -> OIDC | `hardening/credentials/` |
 | 28 Finding 3 | The actor cannot be a person | `_staging/deploy-nightly.yml`, `scripts/census.sh` |
-| Defenses | Tripwires, CODENedkoHristovS, cooldown, egress | `hardening/tripwires/`, `.github/CODENedkoHristovS`, `.github/dependabot.yml`, `hardened` job |
+| Defenses | Tripwires, CODEOWNERS, cooldown, egress | `hardening/tripwires/`, `.github/CODEOWNERS`, `.github/dependabot.yml`, `hardened` job |
 
 ## The four jobs in Nightly Build
 
