@@ -1,14 +1,16 @@
-# Slides 18-20: the same repo, the same package.json, three different outcomes.
+# The same repo, the same package.json, four different outcomes.
 #   floating  -> what most pipelines do: no lockfile, caret range, scripts on
 #   pinned    -> LOCK: npm ci from the committed lockfile
-#   cooldown  -> WAIT: no lockfile, same caret range, but versions < 1 day old are ignored
-#   hardened  -> PIN + LOCK + WAIT + no install scripts + egress allowlist
+#   cooldown  -> WAIT: no lockfile, same range, but releases younger than 15 min are invisible
+#                (demo window; in real life use min-release-age=3, i.e. 3 days)
+#   hardened  -> LOCK + no install scripts + lockfile-lint + egress allowlist
+#
+# npm hides dependency install-script output, so every job checks for the
+# evidence file demo-utils 1.1.0 writes. That file is the proof for the screenshots.
 name: Nightly Build
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "30 0 * * 0"   # Sunday 03:30 Sofia time (UTC+3 in summer)
 
 permissions: {}            # nothing by default; each job asks for what it needs
 
@@ -25,14 +27,17 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Resolve whatever the range allows
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rm -f package-lock.json
           npm install
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   pinned:
@@ -47,17 +52,20 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
+          scope: "@nedkohristov"
       - name: Install exactly what the lockfile says
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci
-          npm ls @OWNER/demo-utils
+          npm ls @nedkohristov/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   cooldown:
-    name: "install - cooldown (no lockfile, but min-release-age=1)"
+    name: "install - cooldown (no lockfile, skip releases < 15 min old)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,20 +76,22 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
-      - name: Upgrade npm (min-release-age needs npm >= 11.10)
-        run: npm install -g npm@11 && npm --version
+          scope: "@nedkohristov"
       - name: Same range as "floating", but fresh releases are invisible
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rm -f package-lock.json
-          npm install --min-release-age=1
-          npm ls @OWNER/demo-utils
+          # Demo window: 15 minutes. Real life: min-release-age=3 (days). Same mechanism.
+          npm install --before="$(date -u -d '15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)"
+          npm ls @nedkohristov/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start
 
   hardened:
-    name: "install - hardened (pin, lock, wait, inspect)"
+    name: "install - hardened (lock, no scripts, egress allowlist)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -103,15 +113,16 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@OWNER"
-      - name: Upgrade npm (min-release-age needs npm >= 11.10)
-        run: npm install -g npm@11 && npm --version
+          scope: "@nedkohristov"
       - name: INSPECT - lockfile only points where we allow
         run: npx --yes lockfile-lint --path package-lock.json --allowed-hosts npm npm.pkg.github.com --validate-https
-      - name: LOCK + WAIT + no install scripts
+      - name: LOCK + no install scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm ci --ignore-scripts --min-release-age=1
-          npm ls @OWNER/demo-utils
+          npm ci --ignore-scripts
+          npm ls @nedkohristov/demo-utils
+      - name: Did anything run during install?
+        run: |
+          if [ -f demo-utils-was-here.txt ]; then cat demo-utils-was-here.txt; else echo "Nothing ran. Clean install."; fi
       - run: npm start

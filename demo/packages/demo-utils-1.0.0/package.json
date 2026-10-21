@@ -1,0 +1,7 @@
+{
+  "name": "@demo/demo-utils",
+  "version": "1.0.0",
+  "description": "Harmless demo dependency (clean release)",
+  "main": "index.js",
+  "license": "MIT"
+}

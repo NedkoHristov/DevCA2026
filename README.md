@@ -24,7 +24,7 @@ acted at 03:30 was not a person at all.
 | 22/26 Incident log 2 | Workflows dressed as security (GhostAction) | `.github/workflows/security-scan.yml` |
 | 23/27 Finding 2 | The credential outlived its owner -> OIDC | `hardening/credentials/` |
 | 28 Finding 3 | The actor cannot be a person | `_staging/deploy-nightly.yml`, `scripts/census.sh` |
-| Defenses | Tripwires, CODEOWNERS, cooldown, egress | `hardening/tripwires/`, `.github/CODEOWNERS`, `.github/dependabot.yml`, `hardened` job |
+| Defenses | Tripwires, CODENedkoHristovS, cooldown, egress | `hardening/tripwires/`, `.github/CODENedkoHristovS`, `.github/dependabot.yml`, `hardened` job |
 
 ## The four jobs in Nightly Build
 
@@ -32,43 +32,13 @@ acted at 03:30 was not a person at all.
 |---|---|---|---|
 | floating | deletes lockfile, `npm install` | 1.0.0 | **1.1.0 + red banner, still green** |
 | pinned | `npm ci` from the committed lockfile | 1.0.0 | 1.0.0 |
-| cooldown | no lockfile, `npm install --min-release-age=1` | 1.0.0 | 1.0.0 (1.1.0 is too young) |
-| hardened | egress allowlist + lockfile-lint + `npm ci --ignore-scripts --min-release-age=1` | 1.0.0 | 1.0.0, no scripts ran |
+| cooldown | no lockfile, skip releases < 15 min old (`--before`) | 1.0.0 | 1.0.0 (1.1.0 is too young) |
+| hardened | egress allowlist + lockfile-lint + `npm ci --ignore-scripts` | 1.0.0 | 1.0.0, no scripts ran |
 
-## Setup (about 30 minutes)
+## Setup
 
-Timing matters: **publish v1.0.0 at least 24 hours before** the "that night" run,
-otherwise the cooldown job has nothing old enough to install.
-
-1. Create an empty repo `DevCA2026` on GitHub, push this folder, then:
-   ```bash
-   ./scripts/bootstrap.sh <your-github-username>
-   git commit -am "bootstrap owner" && git push
-   ```
-2. Create a classic PAT with `write:packages` (publishing only, expire it after the talk) and add to `~/.npmrc`:
-   ```
-   //npm.pkg.github.com/:_authToken=ghp_xxx
-   ```
-3. Publish the clean release and commit the lockfile:
-   ```bash
-   (cd demo-utils && npm publish)
-   npm install            # creates package-lock.json pinned to 1.0.0
-   git add package-lock.json && git commit -m "lockfile is a contract" && git push
-   ```
-   The `repository` field links the package to this repo, so `GITHUB_TOKEN` can read it in Actions.
-   If a job gets 403, open the package settings -> Manage Actions access -> add this repo.
-4. Run **Nightly Build** manually -> take Session A screenshots (see `SCREENSHOTS.md`).
-5. At least 24 h later: `(cd demo-utils-v1.1.0 && npm publish)` -> run **Nightly Build** again
-   within the next 24 h -> Session B screenshots.
-6. The reveal:
-   ```bash
-   git mv _staging/deploy-nightly.yml .github/workflows/
-   git commit -m "temp fix for release, will clean up later" && git push
-   ```
-   For the `github-actions[bot]`/`schedule` screenshot without waiting for Sunday, temporarily set
-   the cron to `"*/15 * * * *"`, wait for one run, screenshot, set it back.
-7. Run `./scripts/census.sh <your-username>` for the "who runs things at 03:30" table.
-8. After the talk: delete the PAT and the `DEPLOY_TOKEN` secret if you created one.
+Step-by-step, copy/paste: see [RUNBOOK.md](RUNBOOK.md).
+Local stage demo (offline, Verdaccio): see [demo/README.md](demo/README.md).
 
 ## Known risks before the live run
 
