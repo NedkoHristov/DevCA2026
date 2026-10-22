@@ -7,9 +7,9 @@ printf "${b}\$ aws sts get-caller-identity --profile prod-admin${n}\n"
 sleep 1
 cat <<'JSON'
 {
-    "UserId": "AIDA2XXXXXXXXXXXXXXXX",
-    "Account": "8xxxxxxxxxx3",
-    "Arn": "arn:aws:iam::8xxxxxxxxxx3:user/prod-admin"
+    "UserId": "AKIAVW5AZXGDGGENLSHW",
+    "Account": "AAH1T3PEHy3kNMRo4/fuw3cqLFsG4ANriqSXF5cq",
+    "Arn": "arn:aws:iam::843093809573:user/prod-admin"
 }
 JSON
 sleep 2
